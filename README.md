@@ -8,9 +8,15 @@ It uses the GitHub API and works with no external libraries.
 ## 🚀 Features
 
 - Fetches the most recent public events for any GitHub user.
-- Supports a variety of event types (push, issues, pull requests, stars, forks, etc.).
+- Supports a variety of event types: push, issues, pull requests, stars, forks, releases, comments, and more.
+- Colorizes output for better readability in the terminal.
+- Summarizes activity by event type and repository count.
+- Allows filtering events by type using the `--filter <event_type>` flag.
+- Exports the latest events to a JSON file with the `--json` flag.
 - Gracefully handles errors like invalid usernames, rate limits, and connection issues.
 - Warns you when you're nearing GitHub's rate limit.
+- Shows relative timestamps (e.g., "2h ago") for each event.
+- Requires no external dependencies—pure Python standard library.
 
 ---
 
@@ -32,6 +38,28 @@ Or run directly with Python:
 python3 app.py <github_username>
 ```
 
+### Filtering Events
+
+You can filter by event type (e.g., only show push events):
+
+```bash
+python3 app.py octocat --filter PushEvent
+```
+
+### Exporting to JSON
+
+Export the latest events to a file:
+
+```bash
+python3 app.py octocat --json
+```
+
+You can combine filtering and export:
+
+```bash
+python3 app.py octocat --filter IssuesEvent --json
+```
+
 ### Example
 
 ```bash
@@ -40,9 +68,15 @@ python3 app.py octocat
 
 Sample output:
 ```
-- Pushed 2 commits to octocat/Hello-World
-- Opened an issue in octocat/Hello-World
-- Starred octocat/Spoon-Knife
+- Pushed 2 commits to octocat/Hello-World (3h ago)
+- Opened an issue in octocat/Hello-World (5h ago)
+- Starred octocat/Spoon-Knife (1d ago)
+
+Summary:
+- push commit: 1
+- issue opened: 1
+- repo starred: 1
+- Activity in 3 repos
 ```
 
 ---
@@ -53,6 +87,7 @@ Sample output:
 - Only public events are shown. Private activity will not appear.
 - If you see a warning about nearing the rate limit, wait a while before making more requests.
 - Make sure you have an active internet connection.
+- The tool displays up to 7 of the most recent events.
 
 ---
 
@@ -70,4 +105,4 @@ Contributions are welcome! Feel free to open issues or submit pull requests.
 ---
 
 ## 📄 License
-MIT License 
+MIT License
