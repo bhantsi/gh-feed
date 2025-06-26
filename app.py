@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 
 import sys
+import os
 import urllib.request
 import urllib.error
 import json
 from datetime import datetime, timezone
 from collections import Counter
+import time
 
 API_URL = "https://api.github.com/users/{}/events"
 
@@ -25,11 +27,54 @@ COLORS = {
 
 RESET = "\033[0m"
 
+CACHE_DIR = ".gh_feed_cache"
+CACHE_EXPIRY = 300  # seconds (5 minutes)
 
-def fetch_user_activity(username):
+
+def get_cache_path(username):
+    if not os.path.exists(CACHE_DIR):
+        os.makedirs(CACHE_DIR)
+    return os.path.join(CACHE_DIR, f"{username}.json")
+
+
+def load_cache(username):
+    path = get_cache_path(username)
+    if not os.path.exists(path):
+        return None
+    try:
+        with open(path, "r") as f:
+            cached = json.load(f)
+        # Check expiry
+        if time.time() - cached.get("timestamp", 0) < CACHE_EXPIRY:
+            return cached.get("events")
+    except Exception:
+        pass
+    return None
+
+
+def save_cache(username, events):
+    path = get_cache_path(username)
+    try:
+        with open(path, "w") as f:
+            json.dump({"timestamp": time.time(), "events": events}, f)
+    except Exception:
+        pass
+
+
+def fetch_user_activity(username, token=None, use_cache=True):
+    # Try cache first
+    if use_cache:
+        cached_events = load_cache(username)
+        if cached_events is not None:
+            print(f"(Loaded cached activity for '{username}')")
+            return cached_events
+
     url = API_URL.format(username)
     try:
         request = urllib.request.Request(url)
+        if token:
+            request.add_header("Authorization", f"token {token}")
+
         with urllib.request.urlopen(request) as response:
             headers = response.getheaders()
             rate_limit_remaining = dict(headers).get("X-RateLimit-Remaining")
@@ -37,7 +82,9 @@ def fetch_user_activity(username):
                 print(
                     f"Warning: You are nearing the GitHub API rate limit. Only {rate_limit_remaining} requests remaining.")
             data = response.read()
-            return json.loads(data)
+            events = json.loads(data)
+            save_cache(username, events)
+            return events
     except urllib.error.HTTPError as e:
         if e.code == 404:
             print(f"Error: User '{username}' not found.")
@@ -47,6 +94,11 @@ def fetch_user_activity(username):
             print(f"HTTP Error {e.code}: {e.reason}")
     except urllib.error.URLError as e:
         print(f"Connection error: {e.reason}")
+        # Try to load cache even if offline
+        cached_events = load_cache(username)
+        if cached_events is not None:
+            print(f"(Loaded cached activity for '{username}' - offline mode)")
+            return cached_events
     return None
 
 
@@ -167,15 +219,50 @@ def export_to_json(events, filename="activity.json"):
         print(f"Error saving file: {e}")
 
 
+def interactive_mode():
+    print("Welcome to Interactive Mode!")
+    username = input("Enter GitHub username: ").strip()
+    token = os.getenv("GITHUB_TOKEN")
+
+    token_choice = input("Use GitHub token? (y/n): ").strip().lower()
+    if token_choice == 'y':
+        token_input = input(
+            "Enter GitHub token (leave blank to use $GITHUB_TOKEN): ").strip()
+        if token_input:
+            token = token_input
+
+    filter_type = input("Filter by event type (leave blank for all): ").strip()
+    export = input("Export results to JSON? (y/n): ").strip().lower() == 'y'
+
+    events = fetch_user_activity(username, token)
+    if events is not None:
+        display_activity(events, filter_type if filter_type else None)
+        if export:
+            export_to_json(events)
+
+
 def main():
+    if len(sys.argv) == 2 and sys.argv[1] == "--interactive":
+        interactive_mode()
+        return
+
     if len(sys.argv) < 2:
         print(
-            "Usage: gh-feed <github_username> [--filter <event_type>] [--json]")
+            "Usage: gh-feed <github_username> [--filter <event_type>] [--json] [--token <token>] | --interactive")
         sys.exit(1)
 
     username = sys.argv[1]
     filter_type = None
     export_json = "--json" in sys.argv
+    token = os.getenv("GITHUB_TOKEN")
+
+    if "--token" in sys.argv:
+        try:
+            token_index = sys.argv.index("--token")
+            token = sys.argv[token_index + 1]
+        except IndexError:
+            print("Error: --token flag must be followed by a token")
+            sys.exit(1)
 
     if "--filter" in sys.argv:
         try:
@@ -185,7 +272,7 @@ def main():
             print("Error: --filter flag must be followed by an event type")
             sys.exit(1)
 
-    events = fetch_user_activity(username)
+    events = fetch_user_activity(username, token)
 
     if events is not None:
         display_activity(events, filter_type)
