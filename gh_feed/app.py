@@ -221,9 +221,15 @@ def export_to_json(events, filename="activity.json"):
 
 def interactive_mode():
     print("Welcome to Interactive Mode!")
-    username = input("Enter GitHub username: ").strip()
-    token = os.getenv("GITHUB_TOKEN")
+    print("Press ENTER without typing a username to exit.")
+    while True:
+        username = input("Enter GitHub username: ").strip()
+        if not username:
+            print("Exiting interactive mode.")
+            return
+        break  # Any non-empty input is accepted as a username
 
+    token = os.getenv("GITHUB_TOKEN")
     token_choice = input("Use GitHub token? (y/n): ").strip().lower()
     if token_choice == 'y':
         token_input = input(
