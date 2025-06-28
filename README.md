@@ -17,6 +17,23 @@ It uses the GitHub API and works with no external libraries.
 - Warns you when you're nearing GitHub's rate limit.
 - Shows relative timestamps (e.g., "2h ago") for each event.
 - Requires no external dependencies—pure Python standard library.
+- Interactive mode for guided usage.
+- Caches API responses for faster repeated queries.
+- Supports GitHub API authentication via personal access token (`--token <token>` or `GITHUB_TOKEN` env variable).
+
+---
+
+## 📦 Installation
+
+You can install `gh-feed` from [TestPyPI](https://test.pypi.org/project/gh-feed/0.1.0/) using the following command:
+
+```bash
+python3 -m pip install --index-url https://test.pypi.org/simple/ --no-deps gh-feed==0.1.0
+```
+
+> **Note:**  
+> This package is currently published on [TestPyPI](https://test.pypi.org/project/gh-feed/0.1.0/), which is for testing purposes.  
+> For production use, wait for the package to be published on the main PyPI repository.
 
 ---
 
@@ -27,12 +44,13 @@ It uses the GitHub API and works with no external libraries.
 
 ### Running the CLI
 
+After installation, you can run the CLI from anywhere:
+
 ```bash
-chmod +x app.py
-./app.py <github_username>
+gh-feed <github_username>
 ```
 
-Or run directly with Python:
+Or, if you want to run the script directly (if you have the source):
 
 ```bash
 python3 app.py <github_username>
@@ -43,7 +61,7 @@ python3 app.py <github_username>
 You can filter by event type (e.g., only show push events):
 
 ```bash
-python3 app.py octocat --filter PushEvent
+gh-feed octocat --filter PushEvent
 ```
 
 ### Exporting to JSON
@@ -51,19 +69,47 @@ python3 app.py octocat --filter PushEvent
 Export the latest events to a file:
 
 ```bash
-python3 app.py octocat --json
+gh-feed octocat --json
 ```
 
 You can combine filtering and export:
 
 ```bash
-python3 app.py octocat --filter IssuesEvent --json
+gh-feed octocat --filter IssuesEvent --json
 ```
+
+### Using a GitHub Token
+
+To increase your API rate limit, you can provide a personal access token:
+
+```bash
+gh-feed octocat --token <your_github_token>
+```
+
+Or set the `GITHUB_TOKEN` environment variable:
+
+```bash
+export GITHUB_TOKEN=your_github_token
+gh-feed octocat
+```
+
+### Interactive Mode
+
+Start an interactive session for guided usage:
+
+```bash
+gh-feed --interactive
+```
+You'll be prompted for the username, event filter, token, and export options.
+
+### Caching
+
+API responses are cached for 5 minutes in the `.gh_feed_cache/` directory to reduce API calls and speed up repeated queries.
 
 ### Example
 
 ```bash
-python3 app.py octocat
+gh-feed octocat
 ```
 
 Sample output:
@@ -88,6 +134,7 @@ Summary:
 - If you see a warning about nearing the rate limit, wait a while before making more requests.
 - Make sure you have an active internet connection.
 - The tool displays up to 7 of the most recent events.
+- Cached data is stored in `.gh_feed_cache/` and is valid for 5 minutes.
 
 ---
 
