@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import sys
+import sys  # Add this import
 import os
 import urllib.request
 import urllib.error
@@ -247,7 +247,49 @@ def interactive_mode():
             export_to_json(events)
 
 
+def print_help():
+    help_text = """
+gh-feed - GitHub User Activity CLI Tool
+
+USAGE:
+    gh-feed <username> [OPTIONS]
+    gh-feed --interactive
+    gh-feed --help
+
+ARGUMENTS:
+    <username>          GitHub username to fetch activity for
+
+OPTIONS:
+    --filter <type>     Filter events by type (e.g., PushEvent, IssuesEvent)
+    --json              Export results to activity.json file
+    --token <token>     Use GitHub personal access token for authentication
+    --interactive       Start interactive mode with guided prompts
+    --help              Show this help message
+
+EXAMPLES:
+    gh-feed octocat
+    gh-feed octocat --filter PushEvent
+    gh-feed octocat --json --token your_token_here
+    gh-feed --interactive
+
+ENVIRONMENT VARIABLES:
+    GITHUB_TOKEN        GitHub personal access token (alternative to --token)
+
+SUPPORTED EVENT TYPES:
+    PushEvent, IssuesEvent, PullRequestEvent, WatchEvent, ForkEvent,
+    CreateEvent, DeleteEvent, ReleaseEvent, PullRequestReviewCommentEvent
+
+For more information, visit: https://github.com/bhantsi/gh-feed
+"""
+    print(help_text.strip())
+
+
 def main():
+    # Check for help flag first - BEFORE any other processing
+    if "--help" in sys.argv or "-h" in sys.argv:
+        print_help()
+        return
+
     if len(sys.argv) == 2 and sys.argv[1] == "--interactive":
         interactive_mode()
         return
@@ -255,8 +297,10 @@ def main():
     if len(sys.argv) < 2:
         print(
             "Usage: gh-feed <github_username> [--filter <event_type>] [--json] [--token <token>] | --interactive")
+        print("Run 'gh-feed --help' for more information.")
         sys.exit(1)
 
+    # Only assign username AFTER checking for help and interactive flags
     username = sys.argv[1]
     filter_type = None
     export_json = "--json" in sys.argv
