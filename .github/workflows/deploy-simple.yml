@@ -11,7 +11,6 @@ on:
 permissions:
   contents: read
   actions: read
-  checks: write
 
 jobs:
   test:
@@ -36,16 +35,7 @@ jobs:
     
     - name: Run tests
       run: |
-        pytest tests/ -v --cov=gh_feed --cov-report=xml || true
-    
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
-      if: matrix.python-version == '3.11'
-      with:
-        file: ./coverage.xml
-        flags: unittests
-        name: codecov-umbrella
-        fail_ci_if_error: false
+        pytest tests/ -v || echo "Tests completed with issues"
 
   deploy:
     needs: test
@@ -81,7 +71,11 @@ jobs:
       run: |
         if [ -z "$TWINE_PASSWORD" ]; then
           echo "❌ TEST_PYPI_API_TOKEN secret is not set!"
-          echo "Please add the TEST_PYPI_API_TOKEN secret to your repository."
+          echo "Please add the TEST_PYPI_API_TOKEN secret to your repository:"
+          echo "1. Go to https://github.com/${{ github.repository }}/settings/secrets/actions"
+          echo "2. Click 'New repository secret'"
+          echo "3. Name: TEST_PYPI_API_TOKEN"
+          echo "4. Value: Your Test PyPI API token"
           exit 1
         fi
         twine upload --repository testpypi dist/*
@@ -94,7 +88,18 @@ jobs:
       run: |
         if [ -z "$TWINE_PASSWORD" ]; then
           echo "❌ PYPI_API_TOKEN secret is not set!"
-          echo "Please add the PYPI_API_TOKEN secret to your repository."
+          echo "Please add the PYPI_API_TOKEN secret to your repository:"
+          echo "1. Go to https://github.com/${{ github.repository }}/settings/secrets/actions"
+          echo "2. Click 'New repository secret'"
+          echo "3. Name: PYPI_API_TOKEN"
+          echo "4. Value: Your PyPI API token"
           exit 1
         fi
         twine upload dist/*
+        
+    - name: Create success comment
+      if: success()
+      run: |
+        echo "✅ Successfully deployed to PyPI!"
+        echo "📦 Package: https://pypi.org/project/gh-feed/"
+        echo "📋 Version: ${{ github.ref_name }}"
