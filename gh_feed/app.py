@@ -9,6 +9,9 @@ from datetime import datetime, timezone
 from collections import Counter
 import time
 
+# Version information
+__version__ = "0.1.2"
+
 API_URL = "https://api.github.com/users/{}/events"
 
 # ANSI color codes
@@ -264,7 +267,8 @@ OPTIONS:
     --json              Export results to activity.json file
     --token <token>     Use GitHub personal access token for authentication
     --interactive       Start interactive mode with guided prompts
-    --help              Show this help message
+    --version, -v       Show version information
+    --help, -h          Show this help message
 
 EXAMPLES:
     gh-feed octocat
@@ -284,10 +288,40 @@ For more information, visit: https://github.com/bhantsi/gh-feed
     print(help_text.strip())
 
 
+def print_version():
+    print(f"gh-feed version {__version__}")
+
+
+def check_for_updates():
+    """Check PyPI for newer version and notify user"""
+    try:
+        # Check PyPI for latest version
+        url = "https://pypi.org/pypi/gh-feed/json"
+        request = urllib.request.Request(url)
+        request.add_header('User-Agent', f'gh-feed/{__version__}')
+        
+        with urllib.request.urlopen(request, timeout=3) as response:
+            data = json.loads(response.read())
+            latest_version = data["info"]["version"]
+            
+            if latest_version != __version__:
+                print(f"📦 New version available: {latest_version} (current: {__version__})")
+                print("💡 Run 'pip install --upgrade gh-feed' to update")
+                print()
+    except Exception:
+        # Silently fail if no internet or PyPI unavailable
+        pass
+
+
 def main():
     # Check for help flag first - BEFORE any other processing
     if "--help" in sys.argv or "-h" in sys.argv:
         print_help()
+        return
+
+    # Check for version flag
+    if "--version" in sys.argv or "-v" in sys.argv:
+        print_version()
         return
 
     if len(sys.argv) == 2 and sys.argv[1] == "--interactive":
@@ -299,6 +333,9 @@ def main():
             "Usage: gh-feed <github_username> [--filter <event_type>] [--json] [--token <token>] | --interactive")
         print("Run 'gh-feed --help' for more information.")
         sys.exit(1)
+
+    # Check for updates (non-blocking)
+    check_for_updates()
 
     # Only assign username AFTER checking for help and interactive flags
     username = sys.argv[1]

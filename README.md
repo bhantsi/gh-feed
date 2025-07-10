@@ -7,19 +7,19 @@ It uses the GitHub API and works with no external libraries.
 
 ## 🚀 Features
 
-- Fetches the most recent public events for any GitHub user.
-- Supports a variety of event types: push, issues, pull requests, stars, forks, releases, comments, and more.
-- Colorizes output for better readability in the terminal.
-- Summarizes activity by event type and repository count.
-- Allows filtering events by type using the `--filter <event_type>` flag.
-- Exports the latest events to a JSON file with the `--json` flag.
-- Gracefully handles errors like invalid usernames, rate limits, and connection issues.
-- Warns you when you're nearing GitHub's rate limit.
-- Shows relative timestamps (e.g., "2h ago") for each event.
-- Requires no external dependencies—pure Python standard library.
-- Interactive mode for guided usage.
-- Caches API responses for faster repeated queries.
-- Supports GitHub API authentication via personal access token (`--token <token>` or `GITHUB_TOKEN` env variable).
+- **Fetches GitHub activity** - Get the most recent public events for any GitHub user
+- **Rich event support** - Supports pushes, issues, pull requests, stars, forks, releases, comments, and more
+- **Beautiful output** - Colorized terminal output with relative timestamps (e.g., "2h ago")
+- **Smart filtering** - Filter events by type using `--filter <event_type>`
+- **Export functionality** - Export results to JSON with `--json` flag
+- **Authentication support** - Use GitHub tokens via `--token` or `GITHUB_TOKEN` env variable
+- **Interactive mode** - Step-by-step guided usage with `--interactive`
+- **Offline caching** - Caches API responses for 5 minutes to reduce API calls
+- **Error handling** - Graceful handling of rate limits, network issues, and invalid users
+- **Update notifications** - Automatic check for new versions with upgrade instructions
+- **Version information** - Check current version with `--version` or `-v`
+- **Comprehensive help** - Detailed usage guide with `--help` or `-h`
+- **No dependencies** - Pure Python standard library, no external packages required
 
 ---
 
@@ -54,6 +54,24 @@ Or, if you want to run the script directly (if you have the source):
 
 ```bash
 python3 app.py <github_username>
+```
+
+### Basic Commands
+
+```bash
+# Get user activity
+gh-feed octocat
+
+# Show version
+gh-feed --version
+gh-feed -v
+
+# Show help
+gh-feed --help
+gh-feed -h
+
+# Interactive mode
+gh-feed --interactive
 ```
 
 ### Filtering Events
@@ -106,6 +124,15 @@ You'll be prompted for the username, event filter, token, and export options.
 
 API responses are cached for 5 minutes in the `.gh_feed_cache/` directory to reduce API calls and speed up repeated queries.
 
+### Update Notifications
+
+The tool automatically checks for new versions when you run commands and notifies you if an update is available:
+
+```
+📦 New version available: 0.1.3 (current: 0.1.2)
+💡 Run 'pip install --upgrade gh-feed' to update
+```
+
 ### Example
 
 ```bash
@@ -138,7 +165,36 @@ Summary:
 
 ---
 
-## 📝 Attribution
+## � Changelog
+
+### v0.1.2 (Latest)
+- ✅ **NEW**: Added `--help` and `-h` command support for comprehensive usage guide
+- ✅ **NEW**: Added `--version` and `-v` command to display current version
+- ✅ **NEW**: Automatic update notifications when newer versions are available
+- 🐛 **FIXED**: Interactive mode now properly validates empty username input
+- 🐛 **FIXED**: Help command now works correctly with installed package
+- 📚 **IMPROVED**: Enhanced help documentation with examples and options
+- 🎨 **IMPROVED**: Better error handling and user experience
+
+### v0.1.1
+- 🚀 **NEW**: Offline caching system for API responses (5-minute cache)
+- 🚀 **NEW**: Interactive mode with guided prompts
+- 🚀 **NEW**: Colorized terminal output for better readability
+- 🚀 **NEW**: Event filtering by type with `--filter` option
+- 🚀 **NEW**: JSON export functionality with `--json` flag
+- 🚀 **NEW**: GitHub token authentication support
+- 📚 **IMPROVED**: Comprehensive error handling for rate limits and network issues
+
+### v0.1.0
+- 🎉 Initial release
+- ✅ Basic GitHub user activity fetching
+- ✅ Support for multiple event types
+- ✅ Relative timestamp display
+- ✅ Activity summary with repository count
+
+---
+
+## �📝 Attribution
 
 This project was inspired by the [GitHub User Activity CLI](https://roadmap.sh/projects/github-user-activity) project on [roadmap.sh](https://roadmap.sh/).  
 Check out their project for more ideas and inspiration!
