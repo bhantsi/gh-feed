@@ -1,6 +1,30 @@
 # gh-feed
 
-**gh-feed** is a simple command-line tool written in Python that fetches and displays a GitHub user's recent public activity directly in the terminal.  
+**gh-feed** is## Installation
+
+### From PyPI (Recommended)
+
+Once published to PyPI, you can install with:
+
+```bash
+pip install gh-feed
+```
+
+### From TestPyPI (Current)
+
+You can install `gh-feed` from [TestPyPI](https://test.pypi.org/project/gh-feed/0.1.2/) using the following command:
+
+```bash
+python3 -m pip install --index-url https://test.pypi.org/simple/ --no-deps gh-feed==0.1.2
+```
+
+### From Source
+
+```bash
+git clone https://github.com/bhantsi/gh-feed.git
+cd gh-feed
+pip install .
+```ommand-line tool written in Python that fetches and displays a GitHub user's recent public activity directly in the terminal.  
 It uses the GitHub API and works with no external libraries.
 
 ---
@@ -25,14 +49,14 @@ It uses the GitHub API and works with no external libraries.
 
 ## 📦 Installation
 
-You can install `gh-feed` from [TestPyPI](https://test.pypi.org/project/gh-feed/0.1.0/) using the following command:
+You can install `gh-feed` from [TestPyPI](https://test.pypi.org/project/gh-feed/0.1.2/) using the following command:
 
 ```bash
-python3 -m pip install --index-url https://test.pypi.org/simple/ --no-deps gh-feed==0.1.0
+python3 -m pip install --index-url https://test.pypi.org/simple/ --no-deps gh-feed==0.1.2
 ```
 
 > **Note:**  
-> This package is currently published on [TestPyPI](https://test.pypi.org/project/gh-feed/0.1.0/), which is for testing purposes.  
+> This package is currently published on [TestPyPI](https://test.pypi.org/project/gh-feed/0.1.2/), which is for testing purposes.  
 > For production use, wait for the package to be published on the main PyPI repository.
 
 ---
@@ -122,7 +146,7 @@ You'll be prompted for the username, event filter, token, and export options.
 
 ### Caching
 
-API responses are cached for 5 minutes in the `.gh_feed_cache/` directory to reduce API calls and speed up repeated queries.
+API responses are cached for 5 minutes in the `~/.cache/gh-feed/` directory to reduce API calls and speed up repeated queries.
 
 ### Update Notifications
 
@@ -161,7 +185,7 @@ Summary:
 - If you see a warning about nearing the rate limit, wait a while before making more requests.
 - Make sure you have an active internet connection.
 - The tool displays up to 7 of the most recent events.
-- Cached data is stored in `.gh_feed_cache/` and is valid for 5 minutes.
+- Cached data is stored in `~/.cache/gh-feed/` and is valid for 5 minutes.
 
 ---
 

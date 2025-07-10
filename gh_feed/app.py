@@ -10,7 +10,7 @@ from collections import Counter
 import time
 
 # Version information
-__version__ = "0.1.2"
+__version__ = "0.1.3"
 
 API_URL = "https://api.github.com/users/{}/events"
 
@@ -30,7 +30,7 @@ COLORS = {
 
 RESET = "\033[0m"
 
-CACHE_DIR = ".gh_feed_cache"
+CACHE_DIR = os.path.expanduser("~/.cache/gh-feed")
 CACHE_EXPIRY = 300  # seconds (5 minutes)
 
 
@@ -295,19 +295,29 @@ def print_version():
 def check_for_updates():
     """Check PyPI for newer version and notify user"""
     try:
-        # Check PyPI for latest version
-        url = "https://pypi.org/pypi/gh-feed/json"
-        request = urllib.request.Request(url)
-        request.add_header('User-Agent', f'gh-feed/{__version__}')
+        # Try main PyPI first, then fallback to TestPyPI
+        urls = [
+            "https://pypi.org/pypi/gh-feed/json",
+            "https://test.pypi.org/pypi/gh-feed/json"
+        ]
         
-        with urllib.request.urlopen(request, timeout=3) as response:
-            data = json.loads(response.read())
-            latest_version = data["info"]["version"]
-            
-            if latest_version != __version__:
-                print(f"📦 New version available: {latest_version} (current: {__version__})")
-                print("💡 Run 'pip install --upgrade gh-feed' to update")
-                print()
+        for url in urls:
+            try:
+                request = urllib.request.Request(url)
+                request.add_header('User-Agent', f'gh-feed/{__version__}')
+                
+                with urllib.request.urlopen(request, timeout=3) as response:
+                    data = json.loads(response.read())
+                    latest_version = data["info"]["version"]
+                    
+                    if latest_version != __version__:
+                        print(f"📦 New version available: {latest_version} (current: {__version__})")
+                        print("💡 Run 'pip install --upgrade gh-feed' to update")
+                        print()
+                    return  # Success, no need to try other URLs
+            except urllib.error.HTTPError:
+                continue  # Try next URL
+                
     except Exception:
         # Silently fail if no internet or PyPI unavailable
         pass
