@@ -3,10 +3,7 @@
 **gh-feed** is a command-line tool written in Python that fetches and displays a GitHub user's recent public activity directly in the terminal.  
 It uses the GitHub API and works with no external libraries.
 
--## 📝 Attribution
-
-This project was inspired by the [GitHub User Activity CLI](https://roadmap.sh/projects/github-user-activity) project on [roadmap.sh](https://roadmap.sh/).  
-Check out their project for more ideas and inspiration!## 🚀 Features
+## 🚀 Features
 
 - **Fetches GitHub activity** - Get the most recent public events for any GitHub user
 - **Rich event support** - Supports pushes, issues, pull requests, stars, forks, releases, comments, and more
