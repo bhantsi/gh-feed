@@ -1,35 +1,12 @@
 # gh-feed
 
-**gh-feed** is## Installation
-
-### From PyPI (Recommended)
-
-Once published to PyPI, you can install with:
-
-```bash
-pip install gh-feed
-```
-
-### From TestPyPI (Current)
-
-You can install `gh-feed` from [TestPyPI](https://test.pypi.org/project/gh-feed/0.1.2/) using the following command:
-
-```bash
-python3 -m pip install --index-url https://test.pypi.org/simple/ --no-deps gh-feed==0.1.2
-```
-
-### From Source
-
-```bash
-git clone https://github.com/bhantsi/gh-feed.git
-cd gh-feed
-pip install .
-```ommand-line tool written in Python that fetches and displays a GitHub user's recent public activity directly in the terminal.  
+**gh-feed** is a command-line tool written in Python that fetches and displays a GitHub user's recent public activity directly in the terminal.  
 It uses the GitHub API and works with no external libraries.
 
----
+-## 📝 Attribution
 
-## 🚀 Features
+This project was inspired by the [GitHub User Activity CLI](https://roadmap.sh/projects/github-user-activity) project on [roadmap.sh](https://roadmap.sh/).  
+Check out their project for more ideas and inspiration!## 🚀 Features
 
 - **Fetches GitHub activity** - Get the most recent public events for any GitHub user
 - **Rich event support** - Supports pushes, issues, pull requests, stars, forks, releases, comments, and more
@@ -49,14 +26,32 @@ It uses the GitHub API and works with no external libraries.
 
 ## 📦 Installation
 
-You can install `gh-feed` from [TestPyPI](https://test.pypi.org/project/gh-feed/0.1.2/) using the following command:
+### From PyPI (Recommended)
+
+Once published to PyPI, you can install with:
 
 ```bash
-python3 -m pip install --index-url https://test.pypi.org/simple/ --no-deps gh-feed==0.1.2
+pip install gh-feed
+```
+
+### From TestPyPI (Current)
+
+You can install `gh-feed` from [TestPyPI](https://test.pypi.org/project/gh-feed/0.1.3/) using the following command:
+
+```bash
+python3 -m pip install --index-url https://test.pypi.org/simple/ --no-deps gh-feed==0.1.3
+```
+
+### From Source
+
+```bash
+git clone https://github.com/bhantsi/gh-feed.git
+cd gh-feed
+pip install .
 ```
 
 > **Note:**  
-> This package is currently published on [TestPyPI](https://test.pypi.org/project/gh-feed/0.1.2/), which is for testing purposes.  
+> This package is currently published on [TestPyPI](https://test.pypi.org/project/gh-feed/0.1.3/), which is for testing purposes.  
 > For production use, wait for the package to be published on the main PyPI repository.
 
 ---
@@ -153,7 +148,7 @@ API responses are cached for 5 minutes in the `~/.cache/gh-feed/` directory to r
 The tool automatically checks for new versions when you run commands and notifies you if an update is available:
 
 ```
-📦 New version available: 0.1.3 (current: 0.1.2)
+📦 New version available: 0.1.4 (current: 0.1.3)
 💡 Run 'pip install --upgrade gh-feed' to update
 ```
 
@@ -191,7 +186,7 @@ Summary:
 
 ## � Changelog
 
-### v0.1.2 (Latest)
+### v0.1.3 (Latest)
 - ✅ **NEW**: Added `--help` and `-h` command support for comprehensive usage guide
 - ✅ **NEW**: Added `--version` and `-v` command to display current version
 - ✅ **NEW**: Automatic update notifications when newer versions are available
@@ -200,7 +195,7 @@ Summary:
 - 📚 **IMPROVED**: Enhanced help documentation with examples and options
 - 🎨 **IMPROVED**: Better error handling and user experience
 
-### v0.1.1
+### v0.1.2
 - 🚀 **NEW**: Offline caching system for API responses (5-minute cache)
 - 🚀 **NEW**: Interactive mode with guided prompts
 - 🚀 **NEW**: Colorized terminal output for better readability
@@ -208,6 +203,12 @@ Summary:
 - 🚀 **NEW**: JSON export functionality with `--json` flag
 - 🚀 **NEW**: GitHub token authentication support
 - 📚 **IMPROVED**: Comprehensive error handling for rate limits and network issues
+
+### v0.1.1
+- 🚀 **INITIAL**: Basic GitHub user activity fetching
+- 🚀 **INITIAL**: Support for multiple event types
+- 🚀 **INITIAL**: Relative timestamp display
+- 🚀 **INITIAL**: Activity summary with repository count
 
 ### v0.1.0
 - 🎉 Initial release
