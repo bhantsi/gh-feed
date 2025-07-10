@@ -30,31 +30,55 @@ It uses the GitHub API and works with no external libraries.
 
 ### From PyPI (Recommended)
 
-Once published to PyPI, you can install with:
+Install the latest stable version from PyPI:
 
 ```bash
 pip install gh-feed
 ```
 
-### From TestPyPI (Current)
+### From TestPyPI (Development)
 
-You can install `gh-feed` from [TestPyPI](https://test.pypi.org/project/gh-feed/0.1.3/) using the following command:
+For testing pre-release versions, you can install from TestPyPI:
 
 ```bash
-python3 -m pip install --index-url https://test.pypi.org/simple/ --no-deps gh-feed==0.1.3
+python3 -m pip install --index-url https://test.pypi.org/simple/ --no-deps gh-feed
 ```
 
-### From Source
+### Development Installation
+
+For development or contributing:
 
 ```bash
 git clone https://github.com/bhantsi/gh-feed.git
 cd gh-feed
-pip install .
+pip install -e .
 ```
 
+## 🔄 Automated Deployment
+
+This project uses GitHub Actions for automated testing and deployment:
+
+- **Continuous Integration**: Runs tests on all supported Python versions
+- **Automated PyPI Deployment**: Deploys to PyPI when version tags are pushed
+- **Security Scanning**: Automated security and dependency checks
+- **Code Quality**: Automated linting and formatting checks
+
+### For Contributors
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes and add tests
+4. Create a Pull Request
+5. CI will automatically run tests and checks
+
+### For Maintainers
+
+1. Update version in `pyproject.toml`
+2. Create and push a version tag (e.g., `v0.1.4`)
+3. GitHub Actions will automatically deploy to PyPI
+
 > **Note:**  
-> This package is currently published on [TestPyPI](https://test.pypi.org/project/gh-feed/0.1.3/), which is for testing purposes.  
-> For production use, wait for the package to be published on the main PyPI repository.
+> The package is automatically published to PyPI when new version tags are created. Manual releases can also be triggered through GitHub Actions.
 
 ---
 
