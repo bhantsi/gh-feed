@@ -26,13 +26,13 @@ def get_current_version():
 
 def bump_version(current_version, bump_type):
     """Bump version based on type"""
-    major, minor, patch = map(int, current_version.split('.'))
+    major, minor, patch = map(int, current_version.split("."))
 
-    if bump_type == 'major':
+    if bump_type == "major":
         return f"{major + 1}.0.0"
-    elif bump_type == 'minor':
+    elif bump_type == "minor":
         return f"{major}.{minor + 1}.0"
-    elif bump_type == 'patch':
+    elif bump_type == "patch":
         return f"{major}.{minor}.{patch + 1}"
     else:
         raise ValueError("bump_type must be 'major', 'minor', or 'patch'")
@@ -48,7 +48,7 @@ def update_version_in_file(new_version):
         r'^version = "([^"]+)"',
         f'version = "{new_version}"',
         content,
-        flags=re.MULTILINE
+        flags=re.MULTILINE,
     )
 
     pyproject_path.write_text(new_content)
@@ -58,17 +58,15 @@ def run_git_commands(new_version):
     """Run git commands to commit and tag"""
     try:
         # Add changes
-        subprocess.run(['git', 'add', 'pyproject.toml'], check=True)
+        subprocess.run(["git", "add", "pyproject.toml"], check=True)
 
         # Commit changes
-        subprocess.run([
-            'git', 'commit', '-m', f'Bump version to {new_version}'
-        ], check=True)
+        subprocess.run(
+            ["git", "commit", "-m", f"Bump version to {new_version}"], check=True
+        )
 
         # Create tag
-        subprocess.run([
-            'git', 'tag', f'v{new_version}'
-        ], check=True)
+        subprocess.run(["git", "tag", f"v{new_version}"], check=True)
 
         print(f"✅ Version bumped to {new_version}")
         print(f"✅ Committed changes and created tag v{new_version}")
@@ -88,7 +86,7 @@ def main():
         sys.exit(1)
 
     bump_type = sys.argv[1].lower()
-    if bump_type not in ['patch', 'minor', 'major']:
+    if bump_type not in ["patch", "minor", "major"]:
         print("❌ Bump type must be 'patch', 'minor', or 'major'")
         sys.exit(1)
 
@@ -102,9 +100,8 @@ def main():
         print(f"🚀 New version: {new_version}")
 
         # Confirm with user
-        response = input(
-            f"Are you sure you want to bump to {new_version}? (y/N): ")
-        if response.lower() != 'y':
+        response = input(f"Are you sure you want to bump to {new_version}? (y/N): ")
+        if response.lower() != "y":
             print("❌ Operation cancelled")
             sys.exit(0)
 

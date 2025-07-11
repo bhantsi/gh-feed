@@ -16,16 +16,16 @@ API_URL = "https://api.github.com/users/{}/events"
 
 # ANSI color codes
 COLORS = {
-    "PushEvent": "\033[92m",      # Green
-    "IssuesEvent": "\033[94m",    # Blue
-    "WatchEvent": "\033[93m",     # Yellow
-    "CreateEvent": "\033[96m",    # Cyan
-    "ForkEvent": "\033[95m",      # Magenta
+    "PushEvent": "\033[92m",  # Green
+    "IssuesEvent": "\033[94m",  # Blue
+    "WatchEvent": "\033[93m",  # Yellow
+    "CreateEvent": "\033[96m",  # Cyan
+    "ForkEvent": "\033[95m",  # Magenta
     "PullRequestEvent": "\033[91m",  # Red
     "PullRequestReviewCommentEvent": "\033[90m",  # Dark Gray
-    "DeleteEvent": "\033[31m",    # Bright Red
-    "ReleaseEvent": "\033[35m",   # Purple
-    "default": "\033[0m"           # Reset/No color
+    "DeleteEvent": "\033[31m",  # Bright Red
+    "ReleaseEvent": "\033[35m",  # Purple
+    "default": "\033[0m",  # Reset/No color
 }
 
 RESET = "\033[0m"
@@ -83,7 +83,8 @@ def fetch_user_activity(username, token=None, use_cache=True):
             rate_limit_remaining = dict(headers).get("X-RateLimit-Remaining")
             if rate_limit_remaining is not None and int(rate_limit_remaining) <= 5:
                 print(
-                    f"Warning: You are nearing the GitHub API rate limit. Only {rate_limit_remaining} requests remaining.")
+                    f"Warning: You are nearing the GitHub API rate limit. Only {rate_limit_remaining} requests remaining."
+                )
             data = response.read()
             events = json.loads(data)
             save_cache(username, events)
@@ -106,8 +107,9 @@ def fetch_user_activity(username, token=None, use_cache=True):
 
 
 def time_ago(iso_time):
-    event_time = datetime.strptime(
-        iso_time, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
+    event_time = datetime.strptime(iso_time, "%Y-%m-%dT%H:%M:%SZ").replace(
+        tzinfo=timezone.utc
+    )
     now = datetime.now(timezone.utc)
     delta = now - event_time
 
@@ -234,14 +236,15 @@ def interactive_mode():
 
     token = os.getenv("GITHUB_TOKEN")
     token_choice = input("Use GitHub token? (y/n): ").strip().lower()
-    if token_choice == 'y':
+    if token_choice == "y":
         token_input = input(
-            "Enter GitHub token (leave blank to use $GITHUB_TOKEN): ").strip()
+            "Enter GitHub token (leave blank to use $GITHUB_TOKEN): "
+        ).strip()
         if token_input:
             token = token_input
 
     filter_type = input("Filter by event type (leave blank for all): ").strip()
-    export = input("Export results to JSON? (y/n): ").strip().lower() == 'y'
+    export = input("Export results to JSON? (y/n): ").strip().lower() == "y"
 
     events = fetch_user_activity(username, token)
     if events is not None:
@@ -298,26 +301,28 @@ def check_for_updates():
         # Try main PyPI first, then fallback to TestPyPI
         urls = [
             "https://pypi.org/pypi/gh-feed/json",
-            "https://test.pypi.org/pypi/gh-feed/json"
+            "https://test.pypi.org/pypi/gh-feed/json",
         ]
-        
+
         for url in urls:
             try:
                 request = urllib.request.Request(url)
-                request.add_header('User-Agent', f'gh-feed/{__version__}')
-                
+                request.add_header("User-Agent", f"gh-feed/{__version__}")
+
                 with urllib.request.urlopen(request, timeout=3) as response:
                     data = json.loads(response.read())
                     latest_version = data["info"]["version"]
-                    
+
                     if latest_version != __version__:
-                        print(f"📦 New version available: {latest_version} (current: {__version__})")
+                        print(
+                            f"📦 New version available: {latest_version} (current: {__version__})"
+                        )
                         print("💡 Run 'pip install --upgrade gh-feed' to update")
                         print()
                     return  # Success, no need to try other URLs
             except urllib.error.HTTPError:
                 continue  # Try next URL
-                
+
     except Exception:
         # Silently fail if no internet or PyPI unavailable
         pass
@@ -340,7 +345,8 @@ def main():
 
     if len(sys.argv) < 2:
         print(
-            "Usage: gh-feed <github_username> [--filter <event_type>] [--json] [--token <token>] | --interactive")
+            "Usage: gh-feed <github_username> [--filter <event_type>] [--json] [--token <token>] | --interactive"
+        )
         print("Run 'gh-feed --help' for more information.")
         sys.exit(1)
 
