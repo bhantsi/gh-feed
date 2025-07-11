@@ -17,8 +17,14 @@ class TestCache(unittest.TestCase):
             os.remove(self.cache_path)
 
     def test_save_and_load_cache(self):
-        events = [{"type": "PushEvent", "repo": {"name": "test/repo"},
-                   "created_at": "2024-06-27T12:00:00Z", "payload": {"commits": [1]}}]
+        events = [
+            {
+                "type": "PushEvent",
+                "repo": {"name": "test/repo"},
+                "created_at": "2024-06-27T12:00:00Z",
+                "payload": {"commits": [1]},
+            }
+        ]
         app.save_cache(self.username, events)
         loaded = app.load_cache(self.username)
         self.assertEqual(loaded, events)
@@ -27,24 +33,28 @@ class TestCache(unittest.TestCase):
 class TestTimeAgo(unittest.TestCase):
     def test_time_ago_seconds(self):
         from datetime import datetime, timezone, timedelta
+
         now = datetime.now(timezone.utc)
         iso_time = (now - timedelta(seconds=30)).strftime("%Y-%m-%dT%H:%M:%SZ")
         self.assertIn("s ago", app.time_ago(iso_time))
 
     def test_time_ago_minutes(self):
         from datetime import datetime, timezone, timedelta
+
         now = datetime.now(timezone.utc)
         iso_time = (now - timedelta(minutes=5)).strftime("%Y-%m-%dT%H:%M:%SZ")
         self.assertIn("m ago", app.time_ago(iso_time))
 
     def test_time_ago_hours(self):
         from datetime import datetime, timezone, timedelta
+
         now = datetime.now(timezone.utc)
         iso_time = (now - timedelta(hours=2)).strftime("%Y-%m-%dT%H:%M:%SZ")
         self.assertIn("h ago", app.time_ago(iso_time))
 
     def test_time_ago_days(self):
         from datetime import datetime, timezone, timedelta
+
         now = datetime.now(timezone.utc)
         iso_time = (now - timedelta(days=3)).strftime("%Y-%m-%dT%H:%M:%SZ")
         self.assertIn("d ago", app.time_ago(iso_time))
