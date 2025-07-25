@@ -1,4 +1,5 @@
 import unittest
+import sys
 from unittest.mock import patch, MagicMock
 from gh_feed import app
 
@@ -105,6 +106,31 @@ class TestMultiSelect(unittest.TestCase):
         with patch('builtins.print'):
             result = app.multi_select_event_types()
             self.assertIsNone(result)
+
+    def test_interactive_mode_with_username(self):
+        """Test interactive mode with pre-provided username"""
+        with patch('builtins.input', side_effect=['n', '', '1', 'n']):  # no token, empty token, option 1, no export
+            with patch('gh_feed.app.fetch_user_activity', return_value=[]):
+                with patch('builtins.print') as mock_print:
+                    app.interactive_mode('testuser')
+                    
+                    # Check that username was used
+                    printed_output = str(mock_print.call_args_list)
+                    self.assertIn('testuser', printed_output)
+
+    def test_main_interactive_with_username(self):
+        """Test main() function with username --interactive argument"""
+        with patch.object(sys, 'argv', ['gh-feed', 'octocat', '--interactive']):
+            with patch('gh_feed.app.interactive_mode') as mock_interactive:
+                app.main()
+                mock_interactive.assert_called_once_with('octocat')
+
+    def test_main_interactive_backward_compatibility(self):
+        """Test main() function with --interactive only (backward compatibility)"""
+        with patch.object(sys, 'argv', ['gh-feed', '--interactive']):
+            with patch('gh_feed.app.interactive_mode') as mock_interactive:
+                app.main()
+                mock_interactive.assert_called_once_with(None)
 
 
 if __name__ == "__main__":

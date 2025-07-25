@@ -352,15 +352,19 @@ def multi_select_event_types():
             return None
 
 
-def interactive_mode():
+def interactive_mode(username=None):
     print("Welcome to Interactive Mode!")
-    print("Press ENTER without typing a username to exit.")
-    while True:
-        username = input("Enter GitHub username: ").strip()
-        if not username:
-            print("Exiting interactive mode.")
-            return
-        break  # Any non-empty input is accepted as a username
+    
+    if not username:
+        print("Press ENTER without typing a username to exit.")
+        while True:
+            username = input("Enter GitHub username: ").strip()
+            if not username:
+                print("Exiting interactive mode.")
+                return
+            break  # Any non-empty input is accepted as a username
+    else:
+        print(f"Using username: {username}")
 
     token = os.getenv("GITHUB_TOKEN")
     token_choice = input("Use GitHub token? (y/n): ").strip().lower()
@@ -405,6 +409,7 @@ gh-feed - GitHub User Activity CLI Tool
 USAGE:
     gh-feed <username> [OPTIONS]
     gh-feed --interactive
+    gh-feed <username> --interactive
     gh-feed --help
 
 ARGUMENTS:
@@ -423,6 +428,7 @@ EXAMPLES:
     gh-feed octocat --filter PushEvent
     gh-feed octocat --json --token your_token_here
     gh-feed --interactive
+    gh-feed octocat --interactive
 
 ENVIRONMENT VARIABLES:
     GITHUB_TOKEN        GitHub personal access token (alternative to --token)
@@ -482,8 +488,30 @@ def main():
         print_version()
         return
 
-    if len(sys.argv) == 2 and sys.argv[1] == "--interactive":
-        interactive_mode()
+    # Check for interactive flag (can be combined with username)
+    if "--interactive" in sys.argv:
+        username = None
+        # If there are more than 2 arguments and one is --interactive,
+        # try to extract username from the other arguments (skip flags)
+        if len(sys.argv) > 2:
+            i = 1
+            while i < len(sys.argv):
+                arg = sys.argv[i]
+                if arg == "--interactive":
+                    i += 1
+                    continue
+                elif arg.startswith("--"):
+                    # Skip flag and its potential value
+                    if arg in ["--filter", "--token"]:
+                        i += 2  # Skip flag and its value
+                    else:
+                        i += 1  # Skip flag only
+                    continue
+                else:
+                    # This should be the username
+                    username = arg
+                    break
+        interactive_mode(username)
         return
 
     if len(sys.argv) < 2:
