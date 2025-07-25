@@ -54,32 +54,6 @@ cd gh-feed
 pip install -e .
 ```
 
-## 🔄 Automated Deployment
-
-This project uses GitHub Actions for automated testing and deployment:
-
-- **Continuous Integration**: Runs tests on all supported Python versions
-- **Automated PyPI Deployment**: Deploys to PyPI when version tags are pushed
-- **Security Scanning**: Automated security and dependency checks
-- **Code Quality**: Automated linting and formatting checks
-
-### For Contributors
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes and add tests
-4. Create a Pull Request
-5. CI will automatically run tests and checks
-
-### For Maintainers
-
-1. Update version in `pyproject.toml`
-2. Create and push a version tag (e.g., `v0.1.4`)
-3. GitHub Actions will automatically deploy to PyPI
-
-> **Note:**  
-> The package is automatically published to PyPI when new version tags are created. Manual releases can also be triggered through GitHub Actions.
-
 ---
 
 ## 🛠️ Usage
@@ -199,64 +173,82 @@ Summary:
 
 ---
 
+## 🤝 Contributing
+
+### For Contributors
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature-name`
+3. Make your changes and add tests
+4. Commit your changes: `git commit -m "Add feature"`
+5. Push to your branch: `git push origin feature-name`
+6. Create a Pull Request
+
+### Development Setup
+
+```bash
+# Clone the repository
+git clone https://github.com/bhantsi/gh-feed.git
+cd gh-feed
+
+# Install in development mode
+pip install -e .
+
+# Run tests
+python -m pytest tests/ -v
+
+# Run the tool locally
+python -m gh_feed <username>
+```
+
+### Manual Deployment
+
+To deploy a new version to PyPI:
+
+```bash
+# Update version in pyproject.toml
+# Build the package
+python -m build
+
+# Upload to PyPI
+python -m twine upload dist/*
+```
+
+---
+
 ## ⚠️ Important Notes
 
-- The tool uses the public GitHub API, which is subject to [rate limits](https://docs.github.com/en/rest/overview/resources-in-the-rest-api#rate-limiting). If you make too many requests in a short period, you may be temporarily blocked from making further requests.
-- Only public events are shown. Private activity will not appear.
-- If you see a warning about nearing the rate limit, wait a while before making more requests.
-- Make sure you have an active internet connection.
-- The tool displays up to 7 of the most recent events.
-- Cached data is stored in `~/.cache/gh-feed/` and is valid for 5 minutes.
+- **Rate Limits**: GitHub API has rate limits (60 requests/hour for unauthenticated, 5000/hour with token)
+- **Public Activity Only**: Only shows public GitHub activity
+- **Recent Events**: Limited to the most recent 30 events from GitHub API
+- **Cache Duration**: Responses are cached for 5 minutes to reduce API calls
 
 ---
 
-## � Changelog
+## 📝 License
 
-### v0.1.3 (Latest)
-- ✅ **NEW**: Added `--help` and `-h` command support for comprehensive usage guide
-- ✅ **NEW**: Added `--version` and `-v` command to display current version
-- ✅ **NEW**: Automatic update notifications when newer versions are available
-- 🐛 **FIXED**: Interactive mode now properly validates empty username input
-- 🐛 **FIXED**: Help command now works correctly with installed package
-- 📚 **IMPROVED**: Enhanced help documentation with examples and options
-- 🎨 **IMPROVED**: Better error handling and user experience
-
-### v0.1.2
-- 🚀 **NEW**: Offline caching system for API responses (5-minute cache)
-- 🚀 **NEW**: Interactive mode with guided prompts
-- 🚀 **NEW**: Colorized terminal output for better readability
-- 🚀 **NEW**: Event filtering by type with `--filter` option
-- 🚀 **NEW**: JSON export functionality with `--json` flag
-- 🚀 **NEW**: GitHub token authentication support
-- 📚 **IMPROVED**: Comprehensive error handling for rate limits and network issues
-
-### v0.1.1
-- 🚀 **INITIAL**: Basic GitHub user activity fetching
-- 🚀 **INITIAL**: Support for multiple event types
-- 🚀 **INITIAL**: Relative timestamp display
-- 🚀 **INITIAL**: Activity summary with repository count
-
-### v0.1.0
-- 🎉 Initial release
-- ✅ Basic GitHub user activity fetching
-- ✅ Support for multiple event types
-- ✅ Relative timestamp display
-- ✅ Activity summary with repository count
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-## �📝 Attribution
+## 🐛 Issues & Support
+
+If you encounter any issues or have questions:
+1. Check the [Issues](https://github.com/bhantsi/gh-feed/issues) page
+2. Create a new issue with detailed information
+3. Include your Python version and operating system
+
+---
+
+## 🔗 Links
+
+- **PyPI Package**: https://pypi.org/project/gh-feed/
+- **GitHub Repository**: https://github.com/bhantsi/gh-feed
+- **Documentation**: See this README
+
+---
+
+## 📝 Attribution
 
 This project was inspired by the [GitHub User Activity CLI](https://roadmap.sh/projects/github-user-activity) project on [roadmap.sh](https://roadmap.sh/).  
 Check out their project for more ideas and inspiration!
-
----
-
-## 📈 Contributing
-
-Contributions are welcome! Feel free to open issues or submit pull requests.
-
----
-
-## 📄 License
-MIT License

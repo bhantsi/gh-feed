@@ -3,7 +3,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# Cache directory for gh-feed (now in user cache directory)
+# Cache directory for gh-feed
 .gh_feed_cache/
 
 # Distribution / packaging
