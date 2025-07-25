@@ -9,6 +9,18 @@ from datetime import datetime, timezone
 from collections import Counter
 import time
 
+# Cross-platform keyboard input handling
+try:
+    import termios
+    import tty
+    UNIX_LIKE = True
+except ImportError:
+    try:
+        import msvcrt
+        UNIX_LIKE = False
+    except ImportError:
+        UNIX_LIKE = None  # No keyboard input support
+
 # Version information
 __version__ = "0.1.3"
 
@@ -32,6 +44,19 @@ RESET = "\033[0m"
 
 CACHE_DIR = os.path.expanduser("~/.cache/gh-feed")
 CACHE_EXPIRY = 300  # seconds (5 minutes)
+
+# Event types with descriptions for multi-select interface
+EVENT_TYPES = [
+    ("PushEvent", "Code commits and pushes"),
+    ("IssuesEvent", "Issue creation, updates, comments"),
+    ("PullRequestEvent", "Pull request creation and updates"),
+    ("WatchEvent", "Repository stars"),
+    ("CreateEvent", "Repository/branch/tag creation"),
+    ("ForkEvent", "Repository forks"),
+    ("ReleaseEvent", "Release publications"),
+    ("DeleteEvent", "Branch/tag deletions"),
+    ("PullRequestReviewCommentEvent", "Pull request review comments"),
+]
 
 
 def get_cache_path(username):
@@ -62,6 +87,37 @@ def save_cache(username, events):
             json.dump({"timestamp": time.time(), "events": events}, f)
     except Exception:
         pass
+
+
+def get_key():
+    """Cross-platform function to get a single keypress"""
+    if UNIX_LIKE is None:
+        # Fallback to input() if no keyboard support
+        return input("Press Enter to continue...").strip()
+    
+    if UNIX_LIKE:
+        # Unix-like systems (Linux, macOS)
+        fd = sys.stdin.fileno()
+        old_settings = termios.tcgetattr(fd)
+        try:
+            tty.setraw(sys.stdin.fileno())
+            key = sys.stdin.read(1)
+            if key == '\x1b':  # ESC sequence
+                key += sys.stdin.read(2)
+            return key
+        finally:
+            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+    else:
+        # Windows
+        key = msvcrt.getch()
+        if key == b'\xe0':  # Special keys on Windows
+            key += msvcrt.getch()
+        return key.decode('utf-8', errors='ignore')
+
+
+def clear_screen():
+    """Clear the terminal screen"""
+    os.system('cls' if os.name == 'nt' else 'clear')
 
 
 def fetch_user_activity(username, token=None, use_cache=True):
@@ -127,7 +183,7 @@ def colorize(text, event_type):
     return f"{color}{text}{RESET}"
 
 
-def display_activity(events, filter_type=None):
+def display_activity(events, filter_types=None):
     if not events:
         print("No recent public activity found.")
         return
@@ -140,48 +196,57 @@ def display_activity(events, filter_type=None):
         if count >= 7:
             break
 
-        type = event["type"]
-        if filter_type and filter_type.lower() not in type.lower():
-            continue
+        event_type = event["type"]
+        
+        # Handle filtering by multiple types
+        if filter_types:
+            if isinstance(filter_types, str):
+                # Single filter type (backward compatibility)
+                if filter_types.lower() not in event_type.lower():
+                    continue
+            elif isinstance(filter_types, list):
+                # Multiple filter types
+                if not any(ft.lower() in event_type.lower() for ft in filter_types):
+                    continue
 
-        type_counter[type] += 1
+        type_counter[event_type] += 1
         repos.add(event["repo"]["name"])
 
         repo = event["repo"]["name"]
         created_at = event.get("created_at", "")
         timestamp = f"({time_ago(created_at)})" if created_at else ""
 
-        if type == "PushEvent":
+        if event_type == "PushEvent":
             commit_count = len(event["payload"]["commits"])
             message = f"- Pushed {commit_count} commit{'s' if commit_count > 1 else ''} to {repo} {timestamp}"
-        elif type == "IssuesEvent":
+        elif event_type == "IssuesEvent":
             action = event["payload"]["action"]
             message = f"- {action.capitalize()} an issue in {repo} {timestamp}"
-        elif type == "WatchEvent":
+        elif event_type == "WatchEvent":
             message = f"- Starred {repo} {timestamp}"
-        elif type == "CreateEvent":
+        elif event_type == "CreateEvent":
             ref_type = event["payload"]["ref_type"]
             message = f"- Created a new {ref_type} in {repo} {timestamp}"
-        elif type == "ForkEvent":
+        elif event_type == "ForkEvent":
             forkee = event["payload"]["forkee"]["full_name"]
             message = f"- Forked {repo} to {forkee} {timestamp}"
-        elif type == "PullRequestEvent":
+        elif event_type == "PullRequestEvent":
             action = event["payload"]["action"]
             message = f"- {action.capitalize()} a pull request in {repo} {timestamp}"
-        elif type == "PullRequestReviewCommentEvent":
+        elif event_type == "PullRequestReviewCommentEvent":
             message = f"- Commented on a pull request in {repo} {timestamp}"
-        elif type == "DeleteEvent":
+        elif event_type == "DeleteEvent":
             ref_type = event["payload"]["ref_type"]
             ref = event["payload"]["ref"]
             message = f"- Deleted {ref_type} '{ref}' in {repo} {timestamp}"
-        elif type == "ReleaseEvent":
+        elif event_type == "ReleaseEvent":
             action = event["payload"]["action"]
             release_name = event["payload"]["release"]["name"]
             message = f"- {action.capitalize()} release '{release_name}' in {repo} {timestamp}"
         else:
-            message = f"- {type} in {repo} {timestamp}"
+            message = f"- {event_type} in {repo} {timestamp}"
 
-        print(colorize(message, type))
+        print(colorize(message, event_type))
         count += 1
 
     if count > 0:
@@ -222,6 +287,71 @@ def export_to_json(events, filename="activity.json"):
         print(f"Error saving file: {e}")
 
 
+def multi_select_event_types():
+    """Interactive multi-select interface for choosing event types"""
+    if UNIX_LIKE is None:
+        # Fallback to simple input if no keyboard support
+        print("Keyboard navigation not supported on this system.")
+        filter_input = input("Enter event types separated by commas (or leave blank for all): ").strip()
+        if not filter_input:
+            return None
+        return [t.strip() for t in filter_input.split(",")]
+    
+    # Initialize state
+    options = EVENT_TYPES + [("Select All", "Show all event types")]
+    selected = [False] * len(options)
+    cursor = 0
+    select_all_idx = len(options) - 1
+    
+    while True:
+        clear_screen()
+        print("Available Event Types:")
+        print("Use ↑↓ or j/k to navigate, SPACE to toggle, ENTER to confirm, ESC to cancel")
+        print()
+        
+        for i, (event_type, description) in enumerate(options):
+            cursor_marker = ">" if i == cursor else " "
+            selected_marker = "[X]" if selected[i] else "[ ]"
+            print(f"  {cursor_marker} {selected_marker} {event_type:<25} - {description}")
+        
+        # Show current selection
+        selected_types = [options[i][0] for i in range(len(options) - 1) if selected[i]]
+        if selected[select_all_idx]:
+            selected_types = ["All event types"]
+        
+        print()
+        print(f"Selected: {', '.join(selected_types) if selected_types else 'None'}")
+        print()
+        
+        try:
+            key = get_key()
+            
+            # Handle different key inputs
+            if key in ['\x1b[A', 'k']:  # Up arrow or k (vim)
+                cursor = (cursor - 1) % len(options)
+            elif key in ['\x1b[B', 'j']:  # Down arrow or j (vim)
+                cursor = (cursor + 1) % len(options)
+            elif key == ' ':  # Space to toggle
+                if cursor == select_all_idx:
+                    # Toggle "Select All"
+                    select_all = not selected[select_all_idx]
+                    selected = [select_all] * len(options)
+                else:
+                    # Toggle individual item
+                    selected[cursor] = not selected[cursor]
+                    selected[select_all_idx] = False  # Uncheck "Select All"
+            elif key in ['\r', '\n']:  # Enter to confirm
+                if selected[select_all_idx]:
+                    return None  # Return None for "all events"
+                selected_events = [options[i][0] for i in range(len(options) - 1) if selected[i]]
+                return selected_events if selected_events else None
+            elif key == '\x1b':  # ESC to cancel
+                return None
+                
+        except KeyboardInterrupt:
+            return None
+
+
 def interactive_mode():
     print("Welcome to Interactive Mode!")
     print("Press ENTER without typing a username to exit.")
@@ -240,12 +370,30 @@ def interactive_mode():
         if token_input:
             token = token_input
 
-    filter_type = input("Filter by event type (leave blank for all): ").strip()
+    # Enhanced multi-select event type filtering
+    print("\nEvent Filtering Options:")
+    print("1. Show all events")
+    print("2. Enter event type manually") 
+    print("3. Use interactive multi-select")
+    
+    filter_choice = input("Choose option (1-3, default: 1): ").strip()
+    filter_types = None
+    
+    if filter_choice == "2":
+        filter_input = input("Filter by event type (leave blank for all): ").strip()
+        filter_types = filter_input if filter_input else None
+    elif filter_choice == "3":
+        print("\nStarting multi-select interface...")
+        time.sleep(1)  # Brief pause before clearing screen
+        filter_types = multi_select_event_types()
+        clear_screen()
+        print(f"Selected event types: {', '.join(filter_types) if filter_types else 'All'}")
+    
     export = input("Export results to JSON? (y/n): ").strip().lower() == 'y'
 
     events = fetch_user_activity(username, token)
     if events is not None:
-        display_activity(events, filter_type if filter_type else None)
+        display_activity(events, filter_types)
         if export:
             export_to_json(events)
 
