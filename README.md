@@ -3,6 +3,7 @@
 ![PyPI](https://img.shields.io/pypi/v/gh-feed)
 ![License](https://img.shields.io/github/license/bhantsi/gh-feed)
 ![Issues](https://img.shields.io/github/issues/bhantsi/gh-feed)
+![Downloads](https://pepy.tech/badge/gh-feed)
 
 
 **gh-feed** is a command-line tool written in Python that fetches and displays a GitHub user's recent public activity directly in the terminal.  
