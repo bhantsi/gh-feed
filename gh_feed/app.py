@@ -8,6 +8,7 @@ import json
 from datetime import datetime, timezone
 from collections import Counter
 import time
+import logging
 
 # Cross-platform keyboard input handling
 try:
@@ -23,6 +24,9 @@ except ImportError:
 
 # Version information
 __version__ = "0.1.3"
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
 
 API_URL = "https://api.github.com/users/{}/events"
 
@@ -75,8 +79,8 @@ def load_cache(username):
         # Check expiry
         if time.time() - cached.get("timestamp", 0) < CACHE_EXPIRY:
             return cached.get("events")
-    except Exception:
-        pass
+    except Exception as e:
+        logging.warning(f"Failed to load cache for user '{username}': {e}")
     return None
 
 
@@ -85,8 +89,8 @@ def save_cache(username, events):
     try:
         with open(path, "w") as f:
             json.dump({"timestamp": time.time(), "events": events}, f)
-    except Exception:
-        pass
+    except Exception as e:
+        logging.warning(f"Failed to save cache for user '{username}': {e}")
 
 
 def get_key():
@@ -472,9 +476,9 @@ def check_for_updates():
             except urllib.error.HTTPError:
                 continue  # Try next URL
                 
-    except Exception:
-        # Silently fail if no internet or PyPI unavailable
-        pass
+    except Exception as e:
+        # Log failure but don't interrupt the main functionality
+        logging.info(f"Unable to check for updates: {e}")
 
 
 def main():
